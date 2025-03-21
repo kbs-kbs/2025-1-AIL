@@ -69,4 +69,109 @@ but 색이 중요한 객체라면 안하는게 좋을 듯 또는 정규화하지
 
 
 
+## 사용 언어
+|언어|버전|
+|---|---|
+|Python|3.11.11|
 
+## 사용 라이브러리
+|언어|라이브러리|버전|모듈/클래스|용도|
+|---|---|---|---|---|
+|Python|scikit-learn|1.6.1|sklearn.linear_model/LinearRegression|선형 회귀 모델 사용|
+||||sklearn.neighbors/KNeighborsRegressor|k-최근접 이웃 회귀 모델 사용|
+||torchvision|0.21.0+cu124|datasets.cifar.CIFAR10|CIFAR10 데이터셋 사용|
+||torchvision|0.21.0+cu124|transforms.ToTensor|이미지를 파이토치 텐서로 변환|
+||torchvision|0.21.0+cu124|transforms.Compose|이미지 데이터 전처리 함수|
+||torchvision|0.21.0+cu124|transforms.RandomHorizontalFlip|데이터셋 증강을 위해 좌우대칭할 때 사용|
+||torchvision|0.21.0+cu124|transforms.RandomCrop|객체 위치 조정을 위해 이미지를 랜덤으로 자름|
+||pandas|2.2.3|pandas|데이터 불러오기|
+||matplotlib|3.10.0|matplotlib.pyplot.plt|데이터 시각화|
+
+## 코드
+```
+from torchvision.datasets.cifar import CIFAR10
+from torchvision.transforms import ToTensor
+import matplotlib.pyplot as plt
+
+# CIFAR10 데이터셋을 불러옴
+training_data = CIFAR10(
+    root="./", # 현재 디렉토리에 데이터셋을 불러옴
+    train=True,
+    download=True,
+    transform=ToTensor()) # 이미지를 파이토치 텐서로 변환해줌
+
+test_data = CIFAR10(
+    root="./",
+    train=False,
+    download=True,
+    transform=ToTensor())
+
+for i in range(9):
+    plt.subplot(3, 3, i+1) # 3x3의 몇번째 플롯인지 지정 (1번부터 시작)
+    plt.imshow(training_data.data[i]) # 트레이닝 데이터의 이미지를 보여줌
+    plt.title(training_data.classes[training_data.targets[i]]) # 트레이닝 데이터의 label 표시
+    plt.axis('off')  # 축 안 보이게
+plt.tight_layout()
+plt.show() # 플롯 집합 보이기
+```
+
+```
+#데이터 증강
+import matplotlib.pyplot as plt
+import torchvision.transforms as T
+from torchvision.datasets.cifar import CIFAR10
+from torchvision.transforms import Compose, RandomHorizontalFlip, RandomCrop
+
+transforms = Compose([ # 데이터 전처리 함수를 나열하여 한번에 적용
+   T.ToPILImage(), # numpy 행렬을 PIL 이미지로 변환
+   RandomCrop((32, 32), padding=4), # 4픽셀 패딩 후 32x32로 랜덤 자르기
+   RandomHorizontalFlip(p=0.5), # y축으로 기준으로 대칭, 50% 확률로
+])
+
+training_data = CIFAR10(
+    root="./",
+    train=True,
+    download=True,
+    transform=transforms) # transform에는 데이터를 변환하는 함수가 들어감
+
+test_data = CIFAR10(
+    root="./",
+    train=False,
+    download=True,
+    transform=transforms)
+
+for i in range(9):
+   plt.subplot(3, 3, i+1)
+   plt.imshow(transforms(training_data.data[i]))
+plt.show()
+```
+
+```
+import torch
+
+#이미지 정규화를 하기 위한 사전 작업
+
+training_data = CIFAR10(
+    root="./",
+    train=True,
+    download=True,
+    transform=ToTensor())
+
+# item[0]은 이미지, item[1]은 정답 레이블 -> 이미지만 추출
+imgs = [item[0] for item in training_data]
+
+# imgs를 하나로 합침
+imgs = torch.stack(imgs, dim=0).numpy()
+
+# rgb 각각의 평균
+mean_r = imgs[:,0,:,:].mean()
+mean_g = imgs[:,1,:,:].mean()
+mean_b = imgs[:,2,:,:].mean()
+print(mean_r,mean_g,mean_b)
+
+# rgb 각각의 표준편차
+std_r = imgs[:,0,:,:].std()
+std_g = imgs[:,1,:,:].std()
+std_b = imgs[:,2,:,:].std()
+print(std_r,std_g,std_b)
+```

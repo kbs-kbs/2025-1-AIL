@@ -13,12 +13,9 @@
 
 - 32x32 이미지에서 16x16 이미지(특징이 추출된) feature map ...-> 4x4 정도에서 평탄화
 
-왜 MLP(Multi Layer Perceptron) 대신에 CNN을 사용할까?
-- MLP는 이미지 크기가 커짐에 따라 계산량이 커짐 → 비효율적!
+MLP(Multi Layer Perceptron) 이미지 처리 대신에 CNN을 사용할까?
 - MLP는 이미지를 1D vector로 변환하여 입력받음 → 공간적 정보(위치, 패턴) 손실
-  - CNN은 이미지 속에서 사물의 위치나 크기가 달라져도 분류할 수 있음
- 
-MLP
+- CNN은 이미지 속에서 사물의 위치나 크기가 달라져도 분류할 수 있음
 - 1000x840 크기의 이미지는 840만 개의 픽셀(입력 뉴런) 필요
 - MLP를 사용하면 모든 뉴런이 완전 연결(fully connected) → 엄청난 수의 가중치(파라미터) 필요!
 - 연산량이 너무 많아 학습이 어렵고, overfitting 우려가 있음
@@ -40,22 +37,16 @@ RGB의 경우 커널이 3개가 필요함 이 경우에는 3커널이 1필터가
 
 커널을 쓰면 이미지 크기에 따라 특정 비율을 커널로 해상도에 상관없이 특징을 추출해낼 수 있음
 
-자료 14 오류 2*2 -> 3*3 
-
 패딩: 3x3에 패딩을 줘서 5x5로 만들면 3*3커널로 컨볼루션해도 결과가 3x3이 되어 이미지 크기가 유지됨.
-왜 마진이 아닌가
 
 패딩의 종류:
 - 제로패딩
-- 레플리케이션 패딩
-- 리플렉션 패딩
+- 리플리케이션 패딩: 한번 더
+- 리플렉션 패딩: 거울처럼
 
-max pooling
-
-max pooling을 위한 커널 사용 원본과 다운 샘플링할 크기에 따라
-커널 크기와 stride가 정해짐
-
-장점: 연산량 줄어듦
+max pooling:
+- max pooling을 위한 커널 사용 원본과 다운 샘플링할 크기에 따라 커널 크기와 stride가 정해짐
+- 장점: 연산량 줄어듦
 불필요한 정보 제거되어 과적합 방지
 객체 탐지에 효과적. 이미지 상의 어느곳에 위치해있는가?
 
@@ -104,16 +95,7 @@ test_data = CIFAR10(
     download=True,
     transform=ToTensor())
 
-for i in range(9):
-    plt.subplot(3, 3, i+1) # 3x3의 몇번째 플롯인지 지정 (1번부터 시작)
-    plt.imshow(training_data.data[i]) # 트레이닝 데이터의 이미지를 보여줌
-    plt.title(training_data.classes[training_data.targets[i]]) # 트레이닝 데이터의 label 표시
-    plt.axis('off')  # 축 안 보이게
-plt.tight_layout()
-plt.show() # 플롯 집합 보이기
-```
 
-```
 #데이터 증강
 import matplotlib.pyplot as plt
 import torchvision.transforms as T

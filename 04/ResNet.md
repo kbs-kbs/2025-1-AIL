@@ -3,7 +3,9 @@
 - CNN 중 가장 많이 쓰이는 모델
 - 기울기 소실 문제 해결책 -> skip connection: f(x)에 x를 그냥 더하는 단계
 - 레이어를 거치지 않고 x를 전달
-- 이때 다운샘플을 해서 
+- 이때 다운샘플을 해서 채널 수를 맞춰줌
+- Conv → BN(배치 정규화) → ReLU → Conv → BN 구조
+- 배치 정규화: 배치마다 값의 분포가 서로 다르면 출력값의 분포가 달라져서 악영향, 배치의 출력 분포를 일정하게 해줌
 
 # 실습
 ```python
@@ -27,21 +29,19 @@ class BasicBlock(nn.Module):
        self.bn2 = nn.BatchNorm2d(num_features=out_channels)
 
        self.relu = nn.ReLU()
-   def forward(self, x):#Conv → BN → ReLU → Conv → BN 구조
+   def forward(self, x): #Conv → BN → ReLU → Conv → BN 구조
+
        #스킵 커넥션을 위해 초기 입력을 저장
        x_ = x
-       #x_를 다운샘플해서 채널 맞춰주고 x와 더한 뒤에 ReLU 활성화
+
+       # x_를 다운샘플해서 채널 맞춰주고 x와 더한 뒤에 ReLU 활성화
 
        x = self.c1(x)
        x = self.bn1(x)
        x = self.relu(x)
        x = self.c2(x)
        x = self.bn2(x)
-
-       #합성곱의 결과와 입력의 채널 수를 맞춤
        x_ = self.downsample(x_)
-
-       #합성곱층의 결과와 저장해놨던 입력값을 더해줌
        x += x_
        x = self.relu(x)
 

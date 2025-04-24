@@ -97,3 +97,22 @@ class ResNet(nn.Module):
 
        return x
 ```
+
+만약 입력 이미지가 32×32라고 가정하고,   
+각 블록 뒤에 AvgPool2d(kernel_size=2, stride=2)를 3번 적용하면:   
+   
+입력: (batch, 3, 32, 32)    
+   
+b1 + pool: (batch, 64, 16, 16)    
+
+b2 + pool: (batch, 128, 8, 8)   
+
+b3 + pool: (batch, 256, 4, 4)   
+
+이렇게 최종적으로 (batch, 256, 4, 4)가 됩니다.   
+ 
+flatten 이후   
+torch.flatten(x, start_dim=1)을 하면  
+(batch, 256, 4, 4) → (batch, 256×4×4) → (batch, 4096)   
+
+그래서 nn.Linear(4096, ...)로 연결할 수 있습니다.    

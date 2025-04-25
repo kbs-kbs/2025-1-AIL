@@ -39,3 +39,8 @@ Layer 2:   t=1   t=2   t=3   ...   t=T
 같은 층의 다음 time step 셀로 전달되고,
 
 다음 층의 같은 time step 셀로도 전달됩니다.
+
+#LSTM에 들어가는 입력 모양 [batch_size, seq_len, input_size]
+# - batch_size: 한 번에 처리하는 문장(데이터)의 개수 (예: 64)
+# - seq_len: 한 문장에서 모델이 바라보는 단어의 개수 (예: 2개씩 입력)
+# - input_size: 임베딩을 거친 단어 벡터의 차원 수 (예: 16차원)

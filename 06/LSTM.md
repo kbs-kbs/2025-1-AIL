@@ -19,7 +19,7 @@
 2. forget gate를 통해 cs를 갱신하고
 3. concatenate 결과를 candidate gate가 tanh로 정규화 하고
 4. input gate와 곱해 기억할것을 cell state에 반영하고
-5. output gate로 cell state를 바탕으로 다음 시점의 hidden state 생성
+5. output gate로 cell state를 tanh 적용한 뒤 다음 시점의 hidden state 생성
 
 
 1. LSTM을여러층을쌓으면무엇이좋은가요?- 더 깊은 층이 문장의 복잡한 패턴이나 의미를 더 잘 학습함.

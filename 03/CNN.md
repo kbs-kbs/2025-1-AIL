@@ -66,6 +66,21 @@ but 색이 중요한 객체라면 안하는게 좋을 듯 또는 정규화하지
 
 
 
+## 주요 CNN 모델들
+
+| 모델 | 연도 | 특징 | 주요 기여 |
+|---|---|---|---|
+| LeNet-5 | 1998 | 최초의 CNN 구조 중 하나, 5×5 필터 사용 | 손글씨 숫자(MNIST) 인식 |
+| AlexNet | 2012 | 8개 층(합성곱 5 + 완전연결 3), ReLU 도입 | ImageNet 우승, 딥러닝 붐 시작 |
+| VGGNet | 2014 | 3×3 작은 필터 여러 개 (VGG-16, VGG-19) | 깊은 신경망의 효과 입증 |
+| GoogLeNet (Inception) | 2014 | Inception 모듈(여러 크기 필터 조합), 연산량 최적화 | 효율적이고 성능 높은 구조 |
+| ResNet | 2015 | Skip connection 사용 → 깊은 네트워크(50~1000+층) 학습 | 딥러닝 학습의 새 패러다임 |
+| DenseNet | 2017 | 이전 모든 레이어 출력을 다음 레이어에 연결 | 정보 손실 감소, 효율적 학습 |
+| EfficientNet | 2019 | Compound Scaling으로 연산량 최소화 + 성능 극대화 | 적은 계산으로 높은 성능 |
+| Vision Transformer (ViT) | 2020 | CNN이 아닌 Transformer 구조 이용 | CNN을 대체할 가능성 |
+
+- 발전 방향: 단순 구조(LeNet-5) → 더 깊은 구조(AlexNet, VGGNet) → 연산 최적화(GoogLeNet) → 더 깊은 네트워크 학습(ResNet) → 효율 극대화(DenseNet, EfficientNet) → ViT
+
 ## 사용 언어
 |언어|버전|
 |---|---|

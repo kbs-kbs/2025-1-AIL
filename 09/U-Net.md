@@ -1,5 +1,49 @@
 
-## U-Net 아키텍처 개요
+# U-Net
+
+## 등장 배경
+
+| 문제 | 입력 | 출력 |
+|---|---|---|
+| Image Classification | 이미지 | 이미지가 속한 class |
+| Image Segmentation | 이미지 | segmentation map (픽셀별 class) |
+
+- 일반 CNN: `이미지 → Convolution → Pooling → Fully connected → Class` → 분류는 잘하지만 **위치 정보가 사라짐**
+- 단순 FCN(Fully Convolutional Network): `이미지 → Convolution → Pooling → Convolution → Segmentation map`
+  - 기존 위치 정보 소실로 모서리·경계선이 뭉개진 저품질 결과
+- **(IDEA) 이미지의 위치 정보를 유지해줄 skip connection이 필요하다!**
+
+## U-Net의 특징
+
+- Encoder-Decoder 구조와 **Skip connection**을 통해 **공간 정보와 추상 정보를 동시에** 활용
+- 전체 구조가 대칭적인 **U자 형태**
+- Encoder-Decoder 구조로 해상도 감소-복원 흐름을 따름
+- FCN과 비교하면 **소규모 데이터셋에서도 높은 정확도** → 의료 영상처럼 데이터 수집이 어려운 분야에서 많이 활용
+
+## 관련 개념
+
+- **Encoder**: Convolution과 Pooling을 반복하며 이미지를 점점 압축하고 추상적 특징을 추출
+- **Decoder**: Upsampling을 통해 추출된 특징(압축된 정보)을 점진적으로 복원하고 원래 크기와 유사하게 재구성
+- **Upsampling**: 추출한 특징을 이용해 이미지를 복원하는 과정, 해상도를 키우는 과정
+- **Downsampling**: 해상도(H×W)를 줄이는 것. U-Net에서는 인코더 내부의 해상도 축소 연산(Max Pooling, Strided Convolution)을 가리킴
+  - (참고) ResNet의 다운샘플은 `F(x) + x` 를 위해 해상도를 줄이면서 **채널 수를 늘려 모양을 맞추는** 작업이었음
+- **Skip Connection**: 같은 깊이의 인코더 출력과 디코더 입력을 직접 연결
+  - 두 feature map을 **concatenate**(채널 추가)하거나 값을 더함
+  - 인코더 초반의 공간 정보를 디코더에서 고수준 의미 정보와 함께 사용해 **경계면 정보 손실을 완화**
+
+## U-Net의 구조
+
+- Encoder와 Decoder가 각각 여러 층으로 구성되며, 같은 깊이의 인코더-디코더 층 사이에 skip connection이 있음
+- Encoder에서 추출한 feature는 decoder에서 고해상도 출력을 복원할 때 직접 결합되어 사용됨
+- 마지막에는 **1×1 convolution** 으로 클래스 수만큼 채널을 줄이고, 각 픽셀마다 분류 결과를 출력
+
+## 활용 분야
+
+- Image Segmentation, Image Restoration 등
+
+---
+
+# (참고) U-Net 아키텍처 정리
 
 U-Net은 주로 이미지 분할(Image Segmentation)에 사용되는 합성곱 신경망(CNN) 기반의 아키텍처로, 2015년 의료 영상 분석 분야에서 처음 제안되었습니다[3][6]. 이름처럼 전체 구조가 U자 형태를 띠며, 인코더(Encoder, 축소 경로)와 디코더(Decoder, 확장 경로)로 대칭적으로 구성되어 있습니다[1][3][5].
 
@@ -53,3 +97,21 @@ Citations:
 
 ---
 Perplexity로부터의 답변: https://www.perplexity.ai/search/u-net-akitegceoe-daehae-seolmy-MDwlldCnSCKYnGuWao__RQ?utm_source=copy_output
+
+---
+
+# 실습: 동물 사진과 배경 분리하기 (Oxford-IIIT Pet)
+
+- 데이터셋: `https://www.robots.ox.ac.uk/~vgg/data/pets/` (반려동물 사진 + 픽셀 단위 마스크)
+- 흐름: 데이터 살펴보기 → 데이터 전처리(이미지·마스크 동시 리사이즈, 텐서 변환) → U-Net 모델 정의 → 학습 → 결과 확인
+- 손실 함수: **BCEWithLogitsLoss** (배경/전경 2클래스 분할)
+  - 모델 마지막에 Sigmoid를 두지 않고 로짓을 그대로 출력 → 수치적으로 안정적인 이진 교차엔트로피
+  - (참고) BCEWithLogitsLoss = Sigmoid + BCELoss 를 하나로 합친 것
+- 1 에폭만 학습해도 동물 영역이 분리되는 결과를 확인할 수 있음
+
+## 생각해보기
+
+1. **Encoder-Decoder 구조란 무엇인가?** 입력을 압축해 특징을 뽑는 인코더와, 그 특징으로 원래 크기의 출력을 복원하는 디코더로 이루어진 구조
+2. **U-Net의 Encoder 층이 10층이라면 Decoder 층은 몇 층이어야 하는가?** 대칭 구조이므로 10층
+3. **Skip Connection의 역할은?** 같은 깊이의 인코더 feature map을 디코더에 직접 전달해, 다운샘플링으로 잃어버린 **위치·경계 정보**를 복원 단계에서 되살리는 것
+4. **BCEWithLogitsLoss** — Sigmoid를 모델 밖으로 빼고 로짓에 바로 적용하는 이진 교차엔트로피 (log-sum-exp 트릭으로 계산이 안정적)
